@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[9999] bg-black/95 backdrop-blur-md border-b border-red-500/20">
@@ -35,7 +37,14 @@ export function Navbar() {
           </div>
 
           {/* CTA Button */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/calculator")}
+              className="border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white font-geist bg-transparent"
+            >
+              ⚒️ Крафт-калькулятор
+            </Button>
             <Button className="bg-red-500 hover:bg-red-600 text-white font-geist border-0">Связаться</Button>
           </div>
 
@@ -75,7 +84,14 @@ export function Navbar() {
               >
                 Вопросы
               </a>
-              <div className="px-3 py-2">
+              <div className="px-3 py-2 space-y-2">
+                <Button
+                  variant="outline"
+                  onClick={() => { navigate("/calculator"); setIsOpen(false) }}
+                  className="w-full border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white font-geist bg-transparent"
+                >
+                  ⚒️ Крафт-калькулятор
+                </Button>
                 <Button className="w-full bg-red-500 hover:bg-red-600 text-white font-geist border-0">
                   Связаться
                 </Button>
