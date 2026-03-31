@@ -273,7 +273,16 @@ export default function Calculator() {
                         >
                           −
                         </button>
-                        <span className="w-7 text-center text-sm font-bold text-white">{qty}</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={qty}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value)
+                            if (!isNaN(val)) updateQty(recipe.id, val)
+                          }}
+                          className="w-12 text-center text-sm font-bold text-white bg-white/10 border border-white/15 rounded px-1 py-0.5 focus:outline-none focus:border-red-500/60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
                         <button
                           onClick={() => updateQty(recipe.id, qty + 1)}
                           className="w-6 h-6 rounded bg-white/10 text-gray-300 hover:bg-red-500/40 flex items-center justify-center text-xs transition-colors"
