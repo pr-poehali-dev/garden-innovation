@@ -55,6 +55,8 @@ export default function Calculator() {
   const [tierFilter, setTierFilter] = useState<Tier | "all">("all")
   const [search, setSearch] = useState("")
   const [cart, setCart] = useState<CartItem[]>([])
+  const [resourceOverrides, setResourceOverrides] = useState<Partial<Record<ResourceType, number>>>({})
+  const [resourcePrices, setResourcePrices] = useState<Partial<Record<ResourceType, number>>>({})
 
   const filtered = useMemo(() => {
     return ALL_RECIPES.filter((r) => {
@@ -90,7 +92,32 @@ export default function Calculator() {
     return Object.entries(map) as [ResourceType, number][]
   }, [cart])
 
-  const clearCart = () => setCart([])
+  const effectiveTotals = useMemo(() => {
+    return totals.map(([resource, amount]) => ({
+      resource,
+      amount: resourceOverrides[resource] ?? amount,
+      baseAmount: amount,
+      price: resourcePrices[resource] ?? 0,
+    }))
+  }, [totals, resourceOverrides, resourcePrices])
+
+  const grandTotal = useMemo(() => {
+    return effectiveTotals.reduce((sum, { amount, price }) => sum + amount * price, 0)
+  }, [effectiveTotals])
+
+  const setOverride = (resource: ResourceType, val: number) => {
+    setResourceOverrides(prev => ({ ...prev, [resource]: val }))
+  }
+
+  const setPrice = (resource: ResourceType, val: number) => {
+    setResourcePrices(prev => ({ ...prev, [resource]: val }))
+  }
+
+  const clearCart = () => {
+    setCart([])
+    setResourceOverrides({})
+    setResourcePrices({})
+  }
 
   const groups = typeFilter === "armor"
     ? ARMOR_GROUPS
@@ -303,25 +330,77 @@ export default function Calculator() {
             </div>
 
             {/* Totals */}
-            {totals.length > 0 && (
+            {effectiveTotals.length > 0 && (
               <div className="rounded-xl border border-red-500/30 bg-red-950/10 p-4">
-                <h3 className="font-orbitron text-sm font-bold text-red-400 mb-3 flex items-center gap-2">
+                <h3 className="font-orbitron text-sm font-bold text-red-400 mb-1 flex items-center gap-2">
                   <Icon name="Layers" size={16} />
                   Итого ресурсов
                 </h3>
-                <div className="space-y-2">
-                  {totals.map(([resource, amount]) => (
-                    <div key={resource} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-300 flex items-center gap-2">
-                        <span>{RESOURCE_EMOJI[resource] ?? "📦"}</span>
-                        {RESOURCE_NAMES[resource]}
-                      </span>
-                      <span className="text-sm font-bold text-white bg-white/10 px-2 py-0.5 rounded">
-                        {amount.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
+                <p className="text-xs text-gray-500 mb-3">Количество и цену можно изменить вручную</p>
+
+                {/* Column headers */}
+                <div className="grid grid-cols-[1fr_72px_80px] gap-1 mb-2 px-1">
+                  <span className="text-xs text-gray-600">Ресурс</span>
+                  <span className="text-xs text-gray-600 text-center">Кол-во</span>
+                  <span className="text-xs text-gray-600 text-center">Цена / шт.</span>
                 </div>
+
+                <div className="space-y-2">
+                  {effectiveTotals.map(({ resource, amount, baseAmount, price }) => {
+                    const lineTotal = amount * price
+                    return (
+                      <div key={resource} className="space-y-1">
+                        <div className="grid grid-cols-[1fr_72px_80px] gap-1 items-center">
+                          <span className="text-xs text-gray-300 flex items-center gap-1.5 truncate">
+                            <span>{RESOURCE_EMOJI[resource] ?? "📦"}</span>
+                            <span className="truncate">{RESOURCE_NAMES[resource]}</span>
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={amount}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value)
+                              if (!isNaN(val) && val >= 0) setOverride(resource as ResourceType, val)
+                            }}
+                            className={`w-full text-center text-xs font-bold rounded px-1 py-1 border focus:outline-none focus:border-red-500/60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                              amount !== baseAmount
+                                ? "bg-yellow-950/40 border-yellow-600/40 text-yellow-300"
+                                : "bg-white/8 border-white/10 text-white"
+                            }`}
+                          />
+                          <input
+                            type="number"
+                            min={0}
+                            value={price || ""}
+                            placeholder="0"
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value)
+                              setPrice(resource as ResourceType, isNaN(val) ? 0 : val)
+                            }}
+                            className="w-full text-center text-xs font-bold text-green-300 bg-green-950/30 border border-green-700/30 rounded px-1 py-1 focus:outline-none focus:border-green-500/60 placeholder:text-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                        </div>
+                        {price > 0 && (
+                          <div className="text-right text-xs text-gray-400">
+                            = <span className="text-green-400 font-semibold">{lineTotal.toLocaleString()} 💰</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Grand total */}
+                {grandTotal > 0 && (
+                  <div className="mt-4 pt-3 border-t border-red-500/20">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-white">Итоговая стоимость</span>
+                      <span className="text-base font-bold text-green-400">{grandTotal.toLocaleString()} 💰</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">серебро</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
