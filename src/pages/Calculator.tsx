@@ -57,6 +57,7 @@ export default function Calculator() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [resourceOverrides, setResourceOverrides] = useState<Partial<Record<ResourceType, number>>>({})
   const [resourcePrices, setResourcePrices] = useState<Partial<Record<ResourceType, number>>>({})
+  const [returnRate, setReturnRate] = useState(0)
 
   const filtered = useMemo(() => {
     return ALL_RECIPES.filter((r) => {
@@ -93,16 +94,23 @@ export default function Calculator() {
   }, [cart])
 
   const effectiveTotals = useMemo(() => {
-    return totals.map(([resource, amount]) => ({
-      resource,
-      amount: resourceOverrides[resource] ?? amount,
-      baseAmount: amount,
-      price: resourcePrices[resource] ?? 0,
-    }))
-  }, [totals, resourceOverrides, resourcePrices])
+    return totals.map(([resource, amount]) => {
+      const base = resourceOverrides[resource] ?? amount
+      const returned = Math.floor(base * returnRate / 100)
+      const net = base - returned
+      return {
+        resource,
+        amount: base,
+        baseAmount: amount,
+        returned,
+        net,
+        price: resourcePrices[resource] ?? 0,
+      }
+    })
+  }, [totals, resourceOverrides, resourcePrices, returnRate])
 
   const grandTotal = useMemo(() => {
-    return effectiveTotals.reduce((sum, { amount, price }) => sum + amount * price, 0)
+    return effectiveTotals.reduce((sum, { net, price }) => sum + net * price, 0)
   }, [effectiveTotals])
 
   const setOverride = (resource: ResourceType, val: number) => {
@@ -332,25 +340,52 @@ export default function Calculator() {
             {/* Totals */}
             {effectiveTotals.length > 0 && (
               <div className="rounded-xl border border-red-500/30 bg-red-950/10 p-4">
-                <h3 className="font-orbitron text-sm font-bold text-red-400 mb-1 flex items-center gap-2">
+                <h3 className="font-orbitron text-sm font-bold text-red-400 mb-3 flex items-center gap-2">
                   <Icon name="Layers" size={16} />
                   Итого ресурсов
                 </h3>
-                <p className="text-xs text-gray-500 mb-3">Количество и цену можно изменить вручную</p>
+
+                {/* Return rate slider */}
+                <div className="mb-4 p-3 rounded-lg bg-blue-950/30 border border-blue-700/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-blue-300 flex items-center gap-1.5">
+                      <Icon name="RefreshCw" size={12} />
+                      Возврат при крафте
+                    </span>
+                    <span className="text-sm font-bold text-blue-200">{returnRate}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={60}
+                    step={1}
+                    value={returnRate}
+                    onChange={(e) => setReturnRate(Number(e.target.value))}
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-blue-500 bg-blue-900/40"
+                  />
+                  <div className="flex justify-between text-xs text-blue-900 mt-1">
+                    <span>0%</span>
+                    <span>15%</span>
+                    <span>30%</span>
+                    <span>45%</span>
+                    <span>60%</span>
+                  </div>
+                </div>
 
                 {/* Column headers */}
-                <div className="grid grid-cols-[1fr_72px_80px] gap-1 mb-2 px-1">
+                <div className="grid grid-cols-[1fr_60px_60px_72px] gap-1 mb-2 px-1">
                   <span className="text-xs text-gray-600">Ресурс</span>
-                  <span className="text-xs text-gray-600 text-center">Кол-во</span>
-                  <span className="text-xs text-gray-600 text-center">Цена / шт.</span>
+                  <span className="text-xs text-gray-600 text-center">Нужно</span>
+                  <span className="text-xs text-blue-700 text-center">Вернётся</span>
+                  <span className="text-xs text-gray-600 text-center">Цена/шт.</span>
                 </div>
 
                 <div className="space-y-2">
-                  {effectiveTotals.map(({ resource, amount, baseAmount, price }) => {
-                    const lineTotal = amount * price
+                  {effectiveTotals.map(({ resource, amount, baseAmount, returned, net, price }) => {
+                    const lineTotal = net * price
                     return (
                       <div key={resource} className="space-y-1">
-                        <div className="grid grid-cols-[1fr_72px_80px] gap-1 items-center">
+                        <div className="grid grid-cols-[1fr_60px_60px_72px] gap-1 items-center">
                           <span className="text-xs text-gray-300 flex items-center gap-1.5 truncate">
                             <span>{RESOURCE_EMOJI[resource] ?? "📦"}</span>
                             <span className="truncate">{RESOURCE_NAMES[resource]}</span>
@@ -369,6 +404,9 @@ export default function Calculator() {
                                 : "bg-white/8 border-white/10 text-white"
                             }`}
                           />
+                          <div className="text-center text-xs font-bold text-blue-400 bg-blue-950/30 border border-blue-800/30 rounded py-1">
+                            {returned > 0 ? `−${returned}` : "—"}
+                          </div>
                           <input
                             type="number"
                             min={0}
@@ -382,7 +420,8 @@ export default function Calculator() {
                           />
                         </div>
                         {price > 0 && (
-                          <div className="text-right text-xs text-gray-400">
+                          <div className="text-right text-xs text-gray-500">
+                            {returned > 0 && <span className="text-blue-500 mr-1">({amount}−{returned}={net} шт.)</span>}
                             = <span className="text-green-400 font-semibold">{lineTotal.toLocaleString()} 💰</span>
                           </div>
                         )}
@@ -393,12 +432,18 @@ export default function Calculator() {
 
                 {/* Grand total */}
                 {grandTotal > 0 && (
-                  <div className="mt-4 pt-3 border-t border-red-500/20">
+                  <div className="mt-4 pt-3 border-t border-red-500/20 space-y-1">
+                    {returnRate > 0 && (
+                      <div className="flex items-center justify-between text-xs text-blue-400">
+                        <span>Экономия от возврата ({returnRate}%)</span>
+                        <span>−{(effectiveTotals.reduce((s, { returned, price }) => s + returned * price, 0)).toLocaleString()} 💰</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-bold text-white">Итоговая стоимость</span>
                       <span className="text-base font-bold text-green-400">{grandTotal.toLocaleString()} 💰</span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">серебро</p>
+                    <p className="text-xs text-gray-600">серебро</p>
                   </div>
                 )}
               </div>
