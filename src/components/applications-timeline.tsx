@@ -3,75 +3,75 @@ import { Timeline } from "@/components/ui/timeline"
 export function ApplicationsTimeline() {
   const data = [
     {
-      title: "Медицинское восстановление",
+      title: "Управление компьютером",
       content: (
         <div>
           <p className="text-white text-sm md:text-base font-normal mb-6 leading-relaxed">
-            Революционное лечение паралича, травм спинного мозга и нейродегенеративных заболеваний. Восстановление
-            моторных функций и независимости миллионам людей по всему миру.
+            Первое применение — полноценное управление компьютером без рук. Управление курсором, выбор объектов
+            и базовые команды с помощью нейросигналов и движений глаз.
           </p>
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Восстановление при тетра- и параплегии
+              Управление мышью и курсором мыслью
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Контроль симптомов БАС и Паркинсона
+              Голосовой ввод через нейропаттерны
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Ускорение реабилитации после инсульта
+              Адаптация интерфейса под состояние пользователя
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Когнитивное усиление",
+      title: "Биообратная связь",
       content: (
         <div>
           <p className="text-white text-sm md:text-base font-normal mb-6 leading-relaxed">
-            Усиление человеческого интеллекта, памяти и способности к обучению. Прямые нейроинтерфейсы для
-            улучшенной когнитивной производительности и обработки информации.
+            Мониторинг ментального состояния в реальном времени: концентрация, стресс, усталость. Система
+            помогает пользователю осознавать и улучшать своё когнитивное состояние.
           </p>
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Улучшение памяти и оптимизация запоминания
+              Визуализация уровня концентрации
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Ускоренное обучение и освоение навыков
+              Детекция стресса и предупреждение перегрузки
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Перевод языков в реальном времени
+              Адаптивные сессии нейрофидбека
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Цифровая интеграция",
+      title: "XR и иммерсивные среды",
       content: (
         <div>
           <p className="text-white text-sm md:text-base font-normal mb-6 leading-relaxed">
-            Бесшовное соединение человеческого сознания с цифровыми системами. Управление устройствами,
-            доступ к информации и общение силой мысли.
+            Интеграция нейроинтерфейса с VR/AR-приложениями. Управление виртуальным пространством силой мысли
+            открывает новые форматы взаимодействия — от игр до терапии.
           </p>
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Управление устройствами силой мысли
+              Нейроуправление в виртуальной реальности
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Прямой доступ к интернету и облаку
+              Нейроигры с адаптивной сложностью
             </div>
             <div className="flex items-center gap-3 text-red-400 text-sm">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              Телепатические сети связи
+              Экспозиционная терапия на базе BCI
             </div>
           </div>
         </div>
@@ -83,10 +83,10 @@ export function ApplicationsTimeline() {
     <section id="applications" className="py-20 bg-black">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-10">
         <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-6">Трансформирующие применения</h2>
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-6">Области применения</h2>
           <p className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Технологии SynapseAI открывают беспрецедентные возможности для усиления человека, медицинского
-            лечения и цифровой интеграции в множестве областей.
+            Три ключевых направления, которые я исследую в своём проекте — от бытового управления устройствами
+            до иммерсивных цифровых сред.
           </p>
         </div>
 
